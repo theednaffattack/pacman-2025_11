@@ -132,6 +132,9 @@ async function loadMap() {
         ghosts.add(ghost);
       } else if (tileMapChar == "P") {
         pacman = new Block(pacmanRightPromise, x, y, tileSize, tileSize);
+      } else if (tileMapChar == " ") {
+        const food = new Block(null, x + 14, y + 14, 4, 4);
+        foods.add(food);
       }
     }
   }
@@ -164,14 +167,16 @@ function draw() {
 
   // Draw sprite assets
   // Draw pacman
-  if (context && pacman && pacman.image) {
-    context.drawImage(
-      pacman.image,
-      pacman.x,
-      pacman.y,
-      pacman.width,
-      pacman.height
-    );
+  if (context) {
+    if (pacman && pacman.image) {
+      context.drawImage(
+        pacman.image,
+        pacman.x,
+        pacman.y,
+        pacman.width,
+        pacman.height
+      );
+    }
     // Draw Ghosts
     for (const ghost of ghosts.values()) {
       if (ghost.image) {
@@ -184,11 +189,21 @@ function draw() {
         );
       }
     }
+    // Draw walls
     for (const wall of walls.values()) {
-      context.drawImage(wall.image, wall.x, wall.y, wall.width, wall.height);
+      if (wall.image) {
+        context.drawImage(wall.image, wall.x, wall.y, wall.width, wall.height);
+      } else {
+        console.error("Wall image missing!");
+      }
+    }
+    // Draw food
+    context.fillStyle = "white";
+    for (let food of foods.values()) {
+      context.fillRect(food.x, food.y, food.width, food.height);
     }
   } else {
-    console.error("Image or context is missing");
+    console.error("Context is missing");
   }
 }
 
@@ -199,9 +214,6 @@ export function imageFromUrl(url: string): Promise<HTMLImageElement> {
     img.crossOrigin = "Anonymous"; // to avoid CORS if used with Canvas
     img.src = url;
     img.onload = () => {
-      console.log("Image resolved!");
-      console.log(url);
-
       resolve(img);
     };
     img.onerror = (e) => {
@@ -214,7 +226,12 @@ export function imageFromUrl(url: string): Promise<HTMLImageElement> {
   });
 }
 
-function drawGrid(context: CanvasRenderingContext2D | null, bw: number, bh, p) {
+function drawGrid(
+  context: CanvasRenderingContext2D | null,
+  bw: number,
+  bh: number,
+  p: number
+) {
   if (context) {
     for (var x = 0; x <= boardWidth; x += tileSize) {
       context.moveTo(0.5 + x + p, p);
@@ -231,7 +248,7 @@ function drawGrid(context: CanvasRenderingContext2D | null, bw: number, bh, p) {
 }
 
 class Block {
-  image: HTMLImageElement;
+  image: HTMLImageElement | null;
   x: number;
   y: number;
   width: number;
@@ -239,7 +256,7 @@ class Block {
   startX: number;
   startY: number;
   constructor(
-    image: HTMLImageElement,
+    image: HTMLImageElement | null,
     x: number,
     y: number,
     width: number,
