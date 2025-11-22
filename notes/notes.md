@@ -6,3 +6,6 @@ https://github.com/ImKennyYip/pacman/tree/master
 
 My GitHub
 https://github.com/theednaffattack/pacman-2025_11
+
+Vite Canvas
+https://github.com/knexator/vite-canvas

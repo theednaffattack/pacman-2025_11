@@ -9,8 +9,10 @@ body {
 }
 
 #board {
-  background-color: black;
+  /* background-color: black;
+  opacity: 50%; */
   /* height: 100%; */
+  /* outline: dashed limegreen 2px; */
 }
 
 #app {

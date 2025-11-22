@@ -7,7 +7,7 @@ const columnCount = 19;
 const tileSize = 32;
 const boardHeight = rowCount * tileSize;
 const boardWidth = columnCount * tileSize;
-let context;
+let context: CanvasRenderingContext2D | null;
 
 //images
 let blueGhostImage: HTMLImageElement;
@@ -46,20 +46,33 @@ const tileMap = [
   "XXXXXXXXXXXXXXXXXXX",
 ];
 
-const walls = new Set();
-const foods = new Set();
-const ghosts = new Set();
-let pacman;
+const walls = new Set<Block>();
+const foods = new Set<Block>();
+const ghosts = new Set<Block>();
+let pacman: Block;
+let pacmanRightUrl = new URL("./assets/pacmanRight.png", import.meta.url).href;
+let blueGhostUrl = new URL("./assets/blueGhost.png", import.meta.url).href;
+let pinkGhostUrl = new URL("./assets/pinkGhost.png", import.meta.url).href;
+let redGhostUrl = new URL("./assets/redGhost.png", import.meta.url).href;
+let orangeGhostUrl = new URL("./assets/orangeGhost.png", import.meta.url).href;
+let wallUrl = new URL("./assets/wall.png", import.meta.url).href;
 
-window.onload = function () {
+const wallPromise = await imageFromUrl(wallUrl);
+const pacmanRightPromise = await imageFromUrl(pacmanRightUrl);
+const orangeGhostPromise = await imageFromUrl(orangeGhostUrl);
+const redGhostPromise = await imageFromUrl(redGhostUrl);
+const blueGhostPromise = await imageFromUrl(blueGhostUrl);
+const pinkGhostPromise = await imageFromUrl(pinkGhostUrl);
+
+window.onload = async function () {
   board = document.getElementById("board");
   if (board && board instanceof HTMLCanvasElement) {
-    board.style.height = `${boardHeight}px`;
-    board.style.width = `${boardWidth}px`;
+    board.height = boardHeight;
+    board.width = boardWidth;
     context = board.getContext("2d");
 
     loadImages();
-    loadMap();
+    await loadMap();
     update();
   }
 };
@@ -74,6 +87,9 @@ function loadImages() {
   pacmanDownImage = new Image();
   pacmanLeftImage = new Image();
   pacmanRightImage = new Image();
+
+  // const wallPromise = await imageFromUrl(wallUrl);
+
   wallImage.src = "./assets/wall.png";
   blueGhostImage.src = "./assets/blueGhost.png";
   orangeGhostImage.src = "./assets/orangeGhost.png";
@@ -85,7 +101,7 @@ function loadImages() {
   pacmanLeftImage.src = "./assets/pacmanLeft.png";
 }
 
-function loadMap() {
+async function loadMap() {
   walls.clear();
   foods.clear();
   ghosts.clear();
@@ -98,72 +114,124 @@ function loadMap() {
       const x = c * tileSize;
       const y = r * tileSize;
 
-      //   if (tileMapChar == "X") {
-      //     // block wall
-      //     const wall = new Block(wallImage, x, y, tileSize, tileSize);
-      //     walls.add(wall);
-      //   } else if (tileMapChar == "b") {
-      //     const ghost = new Block(blueGhostImage, x, y, tileSize, tileSize);
-      //     ghosts.add(ghost);
-      //   }
-
-      switch (tileMapChar) {
-        case "X": {
-          const wall = new Block(wallImage, x, y, tileSize, tileSize);
-          walls.add(wall);
-          break;
-        }
-        case "b": {
-          const ghost = new Block(blueGhostImage, x, y, tileSize, tileSize);
-          ghosts.add(ghost);
-          break;
-        }
-        case "P": {
-          const pacmanImage = new Block(
-            pacmanUpImage,
-            x,
-            y,
-            tileSize,
-            tileSize
-          );
-          pacman = pacmanImage;
-          break;
-        }
-        case "p": {
-          const ghost = new Block(pinkGhostImage, x, y, tileSize, tileSize);
-          ghosts.add(ghost);
-          break;
-        }
-        case "o": {
-          const ghost = new Block(orangeGhostImage, x, y, tileSize, tileSize);
-          ghosts.add(ghost);
-          break;
-        }
-        case "r": {
-          const ghost = new Block(redGhostImage, x, y, tileSize, tileSize);
-          ghosts.add(ghost);
-          break;
-        }
-        case " ": {
-          const food = new Block(null, x + 14, y + 14, 4, 4);
-          foods.add(food);
-          break;
-        }
+      if (tileMapChar == "X") {
+        // block wall
+        const wall = new Block(wallPromise, x, y, tileSize, tileSize);
+        walls.add(wall);
+      } else if (tileMapChar == "b") {
+        const ghost = new Block(blueGhostPromise, x, y, tileSize, tileSize);
+        ghosts.add(ghost);
+      } else if (tileMapChar == "p") {
+        const ghost = new Block(pinkGhostPromise, x, y, tileSize, tileSize);
+        ghosts.add(ghost);
+      } else if (tileMapChar == "r") {
+        const ghost = new Block(redGhostPromise, x, y, tileSize, tileSize);
+        ghosts.add(ghost);
+      } else if (tileMapChar == "o") {
+        const ghost = new Block(orangeGhostPromise, x, y, tileSize, tileSize);
+        ghosts.add(ghost);
+      } else if (tileMapChar == "P") {
+        pacman = new Block(pacmanRightPromise, x, y, tileSize, tileSize);
       }
     }
   }
+
+  console.log("MAP LOAD COMPLETE");
 }
 
 // GAME LOOP
 function update() {
   draw();
+
   setTimeout(update, 50); //20 FPS 1 -> 1000ms/20 = 50
 }
 
-function draw() {}
+function draw() {
+  // console.log("ATTEMPTING TO DRAW", {
+  //   x: pacman.x,
+  //   y: pacman.y,
+  //   boardW: boardWidth,
+  //   boardH: boardHeight,
+  // });
+
+  // Paint the board black
+  if (context) {
+    context.fillStyle = "#000000"; // background color
+    context.fillRect(0, 0, boardWidth, boardHeight);
+  }
+  // // Show gridlines
+  // drawGrid(context, boardWidth, boardHeight, 0);
+
+  // Draw sprite assets
+  // Draw pacman
+  if (context && pacman && pacman.image) {
+    context.drawImage(
+      pacman.image,
+      pacman.x,
+      pacman.y,
+      pacman.width,
+      pacman.height
+    );
+    // Draw Ghosts
+    for (const ghost of ghosts.values()) {
+      if (ghost.image) {
+        context.drawImage(
+          ghost.image,
+          ghost.x,
+          ghost.y,
+          ghost.width,
+          ghost.height
+        );
+      }
+    }
+    for (const wall of walls.values()) {
+      context.drawImage(wall.image, wall.x, wall.y, wall.width, wall.height);
+    }
+  } else {
+    console.error("Image or context is missing");
+  }
+}
+
+// from https://www.fabiofranchino.com/log/load-an-image-with-javascript-using-await/
+export function imageFromUrl(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous"; // to avoid CORS if used with Canvas
+    img.src = url;
+    img.onload = () => {
+      console.log("Image resolved!");
+      console.log(url);
+
+      resolve(img);
+    };
+    img.onerror = (e) => {
+      console.error("Image load failure");
+
+      console.error(url);
+
+      reject(e);
+    };
+  });
+}
+
+function drawGrid(context: CanvasRenderingContext2D | null, bw: number, bh, p) {
+  if (context) {
+    for (var x = 0; x <= boardWidth; x += tileSize) {
+      context.moveTo(0.5 + x + p, p);
+      context.lineTo(0.5 + x + p, boardHeight + p);
+    }
+
+    for (var x = 0; x <= boardHeight; x += tileSize) {
+      context.moveTo(p, 0.5 + x + p);
+      context.lineTo(boardWidth + p, 0.5 + x + p);
+    }
+    context.strokeStyle = "green";
+    context.stroke();
+  }
+}
 
 class Block {
-  image: HTMLImageElement | null;
+  image: HTMLImageElement;
   x: number;
   y: number;
   width: number;
@@ -171,7 +239,7 @@ class Block {
   startX: number;
   startY: number;
   constructor(
-    image: HTMLImageElement | null,
+    image: HTMLImageElement,
     x: number,
     y: number,
     width: number,
