@@ -1,3 +1,5 @@
 # Notes
 
-From Kenny Yip Coding https://www.youtube.com/watch?v=WxeTMsaSOaA
+From Kenny Yip Coding:
+https://www.youtube.com/watch?v=WxeTMsaSOaA
+https://github.com/ImKennyYip/pacman/tree/master

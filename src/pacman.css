@@ -1,0 +1,18 @@
+html {
+  height: 100%;
+}
+body {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#board {
+  background-color: black;
+  /* height: 100%; */
+}
+
+#app {
+  height: 100%;
+}
