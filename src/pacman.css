@@ -18,3 +18,13 @@ body {
 #app {
   height: 100%;
 }
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.control-wrap {
+  display: flex;
+  flex-direction: column;
+}
