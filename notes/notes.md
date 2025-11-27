@@ -9,3 +9,6 @@ https://github.com/theednaffattack/pacman-2025_11
 
 Vite Canvas
 https://github.com/knexator/vite-canvas
+
+Pacman Code Examples (python)
+https://pacmancode.com/pacman-death

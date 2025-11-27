@@ -12,7 +12,7 @@ let context: CanvasRenderingContext2D | null;
 
 // The variables we might want to tune while playing
 const CONFIG = {
-  move_speed: 100,
+  move_speed: 5,
   lives: 3,
 };
 
@@ -21,7 +21,7 @@ let score = 0;
 let gameOver = false;
 
 const gui = new GUI();
-gui.add(CONFIG, "move_speed", 10, 500);
+gui.add(CONFIG, "move_speed", 0, 10);
 
 //images
 let blueGhostImage: HTMLImageElement;
@@ -531,15 +531,15 @@ class Block {
   updateVelocity() {
     if (this.direction == "U") {
       this.velocityX = 0;
-      this.velocityY = -TILE_SIZE / 4;
+      this.velocityY = -TILE_SIZE / CONFIG.move_speed;
     } else if (this.direction == "D") {
       this.velocityX = 0;
-      this.velocityY = TILE_SIZE / 4;
+      this.velocityY = TILE_SIZE / CONFIG.move_speed;
     } else if (this.direction == "L") {
-      this.velocityX = -TILE_SIZE / 4;
+      this.velocityX = -TILE_SIZE / CONFIG.move_speed;
       this.velocityY = 0;
     } else if (this.direction == "R") {
-      this.velocityX = TILE_SIZE / 4;
+      this.velocityX = TILE_SIZE / CONFIG.move_speed;
       this.velocityY = 0;
     }
   }

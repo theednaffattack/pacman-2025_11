@@ -26,5 +26,15 @@ body {
 
 .control-wrap {
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
+  padding: 3px;
+  outline: 2px dashed red;
+  font-family: sans-serif;
+  justify-content: center;
+}
+
+.control-text {
+  padding: 0;
+  padding-left: 3px;
+  padding-right: 3px;
 }
